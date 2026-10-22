@@ -1,0 +1,2839 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 95 Interface</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+            font-size: 12px;
+            overflow: hidden;
+            background-color: #008080;
+        }
+
+        textarea, .info-text, .info-text * {
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease;
+        }
+
+        #boot-screen img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        #bios-start-box {
+            position: absolute;
+            background-color: #c0c0c0;
+            width: 300px;
+            padding: 15px;
+            text-align: center;
+            font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+            color: #000000;
+            z-index: 100000;
+        }
+
+        #bios-start-box p {
+            margin: 0 0 15px 0;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .outset-border {
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+        }
+
+        .inset-border {
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a, inset -1px -1px 0px #dfdfdf;
+        }
+
+        .button-border {
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            background-color: #c0c0c0;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .button-border:active, .button-border.active {
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+            padding-top: 5px;
+            padding-left: 13px;
+        }
+
+        #desktop {
+            width: 100%;
+            height: calc(100% - 40px);
+            position: relative;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+            transition: filter 0.15s ease;
+        }
+
+        .desktop-icon {
+            width: 85px;
+            height: 85px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        .desktop-icon img {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 6px;
+            object-fit: contain;
+        }
+
+        .desktop-icon img.minesweeper-desktop-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 2px;
+        }
+
+        .desktop-icon.minesweeper-container {
+            height: 110px;
+            width: 90px;
+        }
+
+        .desktop-icon img.calc-desktop-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 2px;
+        }
+        .desktop-icon.calc-container {
+            height: 110px;
+            width: 90px;
+        }
+
+        .desktop-icon span {
+            padding: 2px 4px;
+            display: block;
+            max-width: 100%;
+            word-wrap: break-word;
+            text-shadow: 1px 1px 1px #000000;
+        }
+
+        .desktop-icon:focus span {
+            background-color: #000080;
+            outline: 1px dotted #ffffff;
+        }
+
+        .window-content .desktop-icon {
+            color: #000000;
+            width: 90px;
+            height: 85px;
+        }
+
+        .window-content .desktop-icon img.large-icon {
+            width: 42px;
+            height: 42px;
+        }
+        
+        .window-content .desktop-icon span {
+            text-shadow: none;
+        }
+
+        .pixel-font {
+            font-family: "Courier New", monospace;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: -0.5px;
+        }
+
+        #taskbar {
+            width: 100%;
+            height: 40px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 4px;
+            z-index: 9999;
+        }
+
+        #start-button {
+            height: 28px;
+            padding: 2px 6px;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 13px;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        #start-button img {
+            width: 18px;
+            height: 18px;
+        }
+
+        #tasks-area {
+            flex-grow: 1;
+            margin-left: 10px;
+            margin-right: 10px;
+            display: flex;
+            gap: 4px;
+            height: 28px;
+            overflow: hidden;
+        }
+
+        .task-tab {
+            width: 150px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            font-weight: bold;
+            gap: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-tab img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+        }
+
+        .task-tab img.calc-task-icon {
+            width: 26px;
+            height: 26px;
+        }
+
+        .task-tab img.wmp-task-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        #system-tray {
+            height: 28px;
+            padding: 2px 8px;
+            background-color: #c0c0c0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #clock {
+            font-size: 12px;
+            color: #000000;
+        }
+
+        #start-menu {
+            position: absolute;
+            bottom: 40px;
+            left: 2px;
+            width: 200px;
+            background-color: #c0c0c0;
+            display: none;
+            flex-direction: row;
+            z-index: 10000;
+        }
+
+        #start-menu-sidebar {
+            width: 30px;
+            background: linear-gradient(180deg, #000080, #0080fe);
+            color: #ffffff;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+
+        #start-menu-sidebar span {
+            transform: rotate(-90deg);
+            transform-origin: 0 0;
+            white-space: nowrap;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            margin-left: -15px;
+        }
+
+        #start-menu-items {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 2px;
+        }
+
+        .start-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            gap: 10px;
+            cursor: pointer;
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .start-menu-item:hover {
+            background-color: #000080;
+            color: #ffffff;
+        }
+
+        .start-menu-item img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+
+        .start-menu-item img.calc-menu-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .start-menu-item img.wmp-menu-icon {
+            width: 26px;
+            height: 26px;
+        }
+
+        .start-menu-separator {
+            height: 2px;
+            border-top: 1px solid #808080;
+            border-bottom: 1px solid #ffffff;
+            margin: 4px 2px;
+        }
+
+        .window {
+            position: absolute;
+            background-color: #c0c0c0;
+            min-width: 214px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .window.active-window {
+            z-index: 500;
+        }
+
+        .window-header {
+            height: 26px;
+            background-color: #808080;
+            color: #c0c0c0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2px 4px;
+            cursor: move;
+        }
+
+        .window.active-window .window-header {
+            background-color: #000080;
+            color: #ffffff;
+        }
+
+        .window-title {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .window-title img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .window-title img.minesweeper-header-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .window-title img.calc-header-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .window-title img.wmp-header-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .window-title img.paint-header-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 2px;
+        }
+
+        .window-btn {
+            width: 16px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .window-menu {
+            display: flex;
+            padding: 2px 4px;
+            gap: 10px;
+            border-bottom: 1px solid #808080;
+            position: relative;
+        }
+
+        .window-menu-item {
+            cursor: pointer;
+            padding: 2px 4px;
+            position: relative;
+        }
+
+        .window-menu-item::first-letter {
+            text-decoration: underline;
+        }
+
+        .window-menu-item:hover {
+            background-color: #000080;
+            color: #ffffff;
+        }
+
+        /* Выпадающее меню "Файл" */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 170px;
+            background-color: #c0c0c0;
+            padding: 2px;
+            display: none;
+            flex-direction: column;
+            z-index: 60000;
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 5px 12px 5px 24px;
+            cursor: pointer;
+            color: #000000;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+
+        .dropdown-item:hover {
+            background-color: #000080;
+            color: #ffffff;
+        }
+
+        .dropdown-separator {
+            height: 2px;
+            border-top: 1px solid #808080;
+            border-bottom: 1px solid #ffffff;
+            margin: 3px 2px;
+        }
+
+        .window-content {
+            flex-grow: 1;
+            background-color: #ffffff;
+            margin: 4px;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .notepad-textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            font-family: Courier New, monospace;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .info-text {
+            color: #000000;
+            line-height: 1.5;
+        }
+        
+        .ok-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .ok-btn {
+            width: 80px;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        .error-dialog-body {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 5px;
+        }
+
+        #minesweeper-layout {
+            background-color: #c0c0c0;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #mine-dashboard {
+            width: 100%;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            margin-bottom: 6px;
+        }
+
+        .mine-counter {
+            background-color: #000000;
+            color: #ff0000;
+            font-family: "Courier New", monospace;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 2px 5px;
+            letter-spacing: 1px;
+            width: 54px;
+            text-align: right;
+        }
+
+        #mine-smiley {
+            width: 26px;
+            height: 26px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        #mine-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 20px);
+            grid-template-rows: repeat(9, 20px);
+            gap: 0;
+            background-color: #808080;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+        }
+
+        .mine-cell {
+            width: 20px;
+            height: 20px;
+            background-color: #c0c0c0;
+            border: 2px solid;
+            border-color: #ffffff #808080 #808080 #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .mine-cell.revealed {
+            border: 1px solid #7b7b7b;
+            background-color: #c0c0c0;
+            padding: 1px;
+        }
+
+        .mine-num-1 { color: #0000ff; }
+        .mine-num-2 { color: #008000; }
+        .mine-num-3 { color: #ff0000; }
+        .mine-num-4 { color: #000080; }
+        .mine-num-5 { color: #800000; }
+        .mine-num-6 { color: #008080; }
+        .mine-num-7 { color: #000000; }
+        .mine-num-8 { color: #808080; }
+
+        .context-menu {
+            position: absolute;
+            background-color: #c0c0c0;
+            min-width: 160px;
+            padding: 2px;
+            display: none;
+            flex-direction: column;
+            z-index: 50000;
+            font-size: 12px;
+        }
+
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 10px 5px 24px;
+            cursor: pointer;
+            color: #000000;
+            gap: 20px;
+            position: relative;
+        }
+
+        .context-menu-item:hover {
+            background-color: #000080;
+            color: #ffffff;
+        }
+
+        .context-menu-separator {
+            height: 2px;
+            border-top: 1px solid #808080;
+            border-bottom: 1px solid #ffffff;
+            margin: 3px 2px;
+        }
+
+        .context-arrow {
+            font-size: 10px;
+            margin-left: auto;
+        }
+
+        .submenu {
+            position: absolute;
+            left: 100%;
+            top: -2px;
+            background-color: #c0c0c0;
+            min-width: 200px;
+            padding: 2px;
+            display: none;
+            flex-direction: column;
+        }
+
+        .context-menu-item.has-submenu:hover > .submenu {
+            display: flex;
+        }
+
+        #calc-win .window-content {
+            background-color: #c0c0c0;
+            padding: 6px;
+        }
+
+        #calc-display {
+            background-color: #ffffff;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+            font-family: "Courier New", monospace;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            padding: 4px 8px;
+            margin-bottom: 6px;
+            height: 34px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .calc-btn {
+            height: 32px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            background-color: #c0c0c0;
+            box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+        }
+
+        .calc-btn:active {
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+            padding-top: 2px;
+            padding-left: 2px;
+        }
+
+        .calc-btn.op {
+            color: #000080;
+        }
+
+        .calc-btn.equals {
+            color: #000080;
+        }
+
+        #div-zero-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+        }
+
+        #div-zero-overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #save-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99998;
+        }
+
+        #save-dialog-box {
+            background-color: #c0c0c0;
+            width: 320px;
+            padding: 2px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #save-dialog-box .window-header {
+            cursor: default;
+        }
+
+        #save-dialog-body {
+            padding: 15px 12px 8px 12px;
+            color: #000000;
+        }
+
+        #save-dialog-body .dialog-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        #save-dialog-body .dialog-icon {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        #save-dialog-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding-bottom: 12px;
+        }
+
+        #save-dialog-buttons button {
+            min-width: 110px;
+            height: 26px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #wmp-win .window-content {
+            background-color: #c0c0c0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .wmp-video-box {
+            background-color: #000000;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            width: 100%;
+            height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #808080;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wmp-video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #000000;
+            display: none;
+        }
+
+        .wmp-video-box .wmp-placeholder {
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .wmp-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .wmp-buttons button {
+            flex: 1 1 auto;
+            min-width: 140px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 4px 8px;
+            white-space: nowrap;
+        }
+
+        #wmp-hidden-file {
+            display: none;
+        }
+
+        /* Paint */
+        #paint-win .window-content {
+            background-color: #c0c0c0;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .paint-toolbar {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 2px;
+        }
+
+        .paint-toolbar button {
+            min-width: 60px;
+            height: 24px;
+            font-size: 11px;
+            padding: 2px 6px;
+            cursor: pointer;
+        }
+
+        .paint-toolbar .active-tool {
+            background-color: #a0a0a0;
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+        }
+
+        .paint-colors {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            padding: 2px;
+        }
+
+        .paint-color {
+            width: 18px;
+            height: 18px;
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            cursor: pointer;
+        }
+
+        .paint-color.active-color {
+            outline: 2px solid #000000;
+            outline-offset: 1px;
+        }
+
+        #paint-canvas {
+            background-color: #ffffff;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            cursor: crosshair;
+            display: block;
+        }
+
+        /* ===== РАДИО ===== */
+        #radio-win .window-content {
+            background-color: #c0c0c0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .radio-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: flex-start;
+            padding: 4px;
+        }
+
+        .radio-tile {
+            width: 220px;
+            height: 200px;
+            background-color: #c0c0c0;
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            transition: background-color 0.1s;
+        }
+
+        .radio-tile:hover {
+            background-color: #d0d0d0;
+        }
+
+        .radio-tile:active,
+        .radio-tile.active-station {
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+            background-color: #b0b0b0;
+        }
+
+        .radio-tile-logo-box {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+            overflow: hidden;
+            padding: 4px;
+            min-height: 0;
+        }
+
+        .radio-tile-logo {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .radio-tile-name {
+            font-weight: bold;
+            font-size: 13px;
+            color: #000000;
+            text-align: center;
+            padding-top: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .radio-tile-emoji {
+            font-size: 48px;
+        }
+
+        .radio-player-box {
+            background-color: #c0c0c0;
+            border: 2px solid;
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .radio-now-playing {
+            font-size: 11px;
+            color: #000000;
+            font-weight: bold;
+            text-align: center;
+            min-height: 14px;
+        }
+
+        #radio-audio {
+            width: 100%;
+            height: 32px;
+            background-color: #c0c0c0;
+        }
+
+        /* ===== ПАНЕЛЬ УПРАВЛЕНИЯ ===== */
+        #controlpanel-win .window-content {
+            background-color: #c0c0c0;
+            padding: 12px;
+        }
+
+        .cp-tiles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: flex-start;
+        }
+
+        .cp-tile {
+            width: 110px;
+            height: 100px;
+            background-color: #c0c0c0;
+            border: 2px solid;
+            border-color: #ffffff #0a0a0a #0a0a0a #ffffff;
+            box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px #808080;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px;
+        }
+
+        .cp-tile:hover {
+            background-color: #d0d0d0;
+        }
+
+        .cp-tile:active {
+            border-color: #808080 #ffffff #ffffff #808080;
+            box-shadow: inset 1px 1px 0px #0a0a0a;
+        }
+
+        .cp-tile-icon {
+            font-size: 36px;
+            line-height: 1;
+        }
+
+        .cp-tile-label {
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            color: #000000;
+        }
+
+        .cp-section-win {
+            width: 320px;
+        }
+
+        .cp-section-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            background-color: #c0c0c0;
+        }
+
+        .cp-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cp-label {
+            font-weight: bold;
+            font-size: 12px;
+            min-width: 60px;
+        }
+
+        .cp-slider {
+            flex-grow: 1;
+            height: 22px;
+        }
+
+        .cp-value {
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            font-weight: bold;
+            min-width: 44px;
+            text-align: right;
+        }
+
+        .cp-big-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cp-about-text {
+            color: #000000;
+            line-height: 1.6;
+            font-size: 12px;
+        }
+
+        .cp-developers-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000080;
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 2px solid #808080;
+            text-shadow: 1px 1px 0px #ffffff;
+        }
+
+        .cp-developers-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .cp-warning {
+            color: #800000;
+            font-weight: bold;
+            line-height: 1.5;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* Скрытые input[type=file] */
+        .hidden-file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+    <div id="boot-screen">
+        <div id="bios-start-box" class="outset-border">
+            <p>Диск C: готов.<br>Запустить интерактивную систему Windows 95?</p>
+            <button class="button-border" onclick="startOS()">Запуск</button>
+        </div>
+        <img id="boot-image" src="https://cs9.pikabu.ru/post_img/big/2020/08/24/7/1598265288110238923.png" alt="Windows 95 Boot Screen">
+    </div>
+
+    <!-- РАБОЧИЙ СТОЛ -->
+    <div id="desktop">
+        <div class="desktop-icon" tabindex="0" ondblclick="openWindow('computer-win')">
+            <img src="https://img.icons8.ru/?size=96&id=wG9MSO7XoMy2&format=png" alt="My Computer">
+            <span>Мой компьютер</span>
+        </div>
+        <div class="desktop-icon" tabindex="0" ondblclick="openWindow('notepad-win')">
+            <img src="https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png" alt="Notepad">
+            <span>Блокнот</span>
+        </div>
+        <div class="desktop-icon minesweeper-container" tabindex="0" ondblclick="openWindow('mines-win')">
+            <img class="minesweeper-desktop-icon" src="https://allwebs.ru/images/2026/10/20/42cb092194f87a6538ea812ba2953087.png" alt="Сапёр">
+            <span>Сапёр</span>
+        </div>
+        <div class="desktop-icon calc-container" tabindex="0" ondblclick="openWindow('calc-win')">
+            <img class="calc-desktop-icon" src="https://allwebs.ru/images/2026/10/21/26889bff26d1f7d819894fb00409198a.png" alt="Калькулятор">
+            <span>Калькулятор</span>
+        </div>
+        <div class="desktop-icon" tabindex="0" ondblclick="openWindow('wmp-win')">
+            <div style="width:32px;height:32px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:28px;">🎬</div>
+            <span>Media Player</span>
+        </div>
+        <div class="desktop-icon" tabindex="0" ondblclick="openPaint()">
+            <img src="https://allwebs.ru/images/2026/10/21/746a0659445a2f1990a886583937190c.png" alt="Paint" style="width: 40px; height: 40px;">
+            <span>Paint</span>
+        </div>
+        <div class="desktop-icon" tabindex="0" ondblclick="openWindow('radio-win')">
+            <div style="width:32px;height:32px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:28px;">📻</div>
+            <span>Радио</span>
+        </div>
+        <div class="desktop-icon" tabindex="0" ondblclick="openWindow('controlpanel-win')">
+            <div style="width:32px;height:32px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:28px;">⚙️</div>
+            <span>Панель управления</span>
+        </div>
+    </div>
+
+    <!-- МЕНЮ ПУСК -->
+    <div id="start-menu" class="outset-border">
+        <div id="start-menu-sidebar">
+            <span>Windows 95</span>
+        </div>
+        <div id="start-menu-items">
+            <div class="start-menu-item" onclick="openWindow('computer-win'); toggleStartMenu()">
+                <img src="https://img.icons8.ru/?size=96&id=wG9MSO7XoMy2&format=png" alt="Computer">
+                <span>Мой компьютер</span>
+            </div>
+            <div class="start-menu-item" onclick="openWindow('notepad-win'); toggleStartMenu()">
+                <img src="https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png" alt="Notepad">
+                <span>Блокнот</span>
+            </div>
+            <div class="start-menu-item" onclick="openWindow('mines-win'); toggleStartMenu()">
+                <img src="https://allwebs.ru/images/2026/10/20/42cb092194f87a6538ea812ba2953087.png" alt="Minesweeper">
+                <span>Сапёр</span>
+            </div>
+            <div class="start-menu-item" onclick="openWindow('calc-win'); toggleStartMenu()">
+                <img class="calc-menu-icon" src="https://allwebs.ru/images/2026/10/21/26889bff26d1f7d819894fb00409198a.png" alt="Калькулятор">
+                <span>Калькулятор</span>
+            </div>
+            <div class="start-menu-item" onclick="openWindow('wmp-win'); toggleStartMenu()">
+                <span style="width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;">🎬</span>
+                <span>Media Player</span>
+            </div>
+            <div class="start-menu-item" onclick="openPaint(); toggleStartMenu()">
+                <img src="https://allwebs.ru/images/2026/10/21/746a0659445a2f1990a886583937190c.png" alt="Paint" style="width: 26px; height: 26px;">
+                <span>Paint</span>
+            </div>
+            <div class="start-menu-item" onclick="openWindow('radio-win'); toggleStartMenu()">
+                <span style="width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;">📻</span>
+                <span>Радио</span>
+            </div>
+            <div class="start-menu-item" onclick="openWindow('controlpanel-win'); toggleStartMenu()">
+                <span style="width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;">⚙️</span>
+                <span>Панель управления</span>
+            </div>
+            <div class="start-menu-separator"></div>
+            <div class="start-menu-item" onclick="location.reload();">
+                <span style="width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;">🔄</span>
+                <span>Перезагрузка системы</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- КОНТЕКСТНОЕ МЕНЮ РАБОЧЕГО СТОЛА -->
+    <div id="desktop-context-menu" class="context-menu outset-border">
+        <div class="context-menu-item" onclick="closeContextMenu()">Обновить</div>
+        <div class="context-menu-item has-submenu">
+            Создать
+            <span class="context-arrow">▶</span>
+            <div class="submenu outset-border">
+                <div class="context-menu-item" onclick="createFile('Текстовый файл.txt'); closeContextMenu()">📄 Текстовый файл</div>
+                <div class="context-menu-item" onclick="createBmp(); closeContextMenu()">🖼 Точёный рисунок BMP</div>
+            </div>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="openWindow('about-win'); closeContextMenu()">Свойства</div>
+    </div>
+
+    <!-- ДИАЛОГ СОХРАНЕНИЯ -->
+    <div id="save-dialog">
+        <div id="save-dialog-box" class="outset-border">
+            <div class="window-header">
+                <div class="window-title">
+                    <span style="font-size:14px;">💾</span>
+                    Сохранить файл?
+                </div>
+            </div>
+            <div id="save-dialog-body">
+                <div class="dialog-row">
+                    <div class="dialog-icon">❓</div>
+                    <div class="info-text" id="save-dialog-message">
+                        Файл был изменён. Сохранить изменения?
+                    </div>
+                </div>
+            </div>
+            <div id="save-dialog-buttons">
+                <button class="button-border" onclick="saveDialogSave()">Сохранить</button>
+                <button class="button-border" onclick="saveDialogDontSave()">НЕ сохранять</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: МОЙ КОМПЬЮТЕР -->
+    <div id="computer-win" class="window outset-border" style="width: 400px; height: 250px; top: 100px; left: 150px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('computer-win')">
+            <div class="window-title">
+                <img src="https://img.icons8.ru/?size=96&id=wG9MSO7XoMy2&format=png" alt="Icon">
+                Мой компьютер
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('computer-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('computer-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item">Файл</span>
+            <span class="window-menu-item">Правка</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content inset-border" style="display: flex; gap: 20px; padding: 15px; align-items: center;">
+            <div class="desktop-icon" tabindex="0" ondblclick="openWindow('drive-c-win')">
+                <img class="large-icon" src="https://allwebs.ru/images/2026/10/20/50d749df7e3dd8f0f9877cb780098122.png" alt="Drive C">
+                <span>Диск C:</span>
+            </div>
+            <div class="desktop-icon" tabindex="0">
+                <div style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:28px;">💾</div>
+                <span>Диск A: (3.5)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: ДИСК С -->
+    <div id="drive-c-win" class="window outset-border" style="width: 400px; height: 250px; top: 130px; left: 180px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('drive-c-win')">
+            <div class="window-title">
+                <img src="https://allwebs.ru/images/2026/10/20/50d749df7e3dd8f0f9877cb780098122.png" style="width: 16px; height: 16px;" alt="Icon">
+                Диск C:
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('drive-c-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('drive-c-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item">Файл</span>
+            <span class="window-menu-item">Правка</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content inset-border" style="display: flex; gap: 20px; padding: 15px;">
+            <div class="desktop-icon" tabindex="0" ondblclick="openWindow('error-win')">
+                <img src="https://allwebs.ru/images/2026/10/20/1cbdf0d59fb34b8c23a5ec39eb10ecdf.png" alt="Folder WINDOWS">
+                <span class="pixel-font">WINDOWS</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО ОШИБКИ -->
+    <div id="error-win" class="window outset-border" style="width: 320px; height: 140px; top: 220px; left: 280px; display: none;">
+        <div class="window-header">
+            <div class="window-title">
+                <span style="font-size:14px;">⛔</span>
+                Ошибка доступа к папке
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="closeWindow('error-win')">X</button>
+            </div>
+        </div>
+        <div class="window-content inset-border" style="background-color: #c0c0c0; border: none; box-shadow: none;">
+            <div class="error-dialog-body">
+                <span style="font-size:32px;">⛔</span>
+                <div class="info-text">
+                    <strong>Отказано в доступе!</strong>
+                </div>
+            </div>
+            <div class="ok-btn-container">
+                <button class="ok-btn button-border" onclick="closeWindow('error-win')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: БЛОКНОТ (с рабочим меню Файл) -->
+    <div id="notepad-win" class="window outset-border" style="width: 450px; height: 300px; top: 150px; left: 200px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('notepad-win')">
+            <div class="window-title">
+                <img src="https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png" alt="Icon">
+                <span id="notepad-title-text">Без имени - Блокнот</span>
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('notepad-win')">_</button>
+                <button class="window-btn button-border" onclick="requestCloseNotepad()">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item" onclick="toggleDropdown('notepad-file-menu', event)">
+                Файл
+                <div id="notepad-file-menu" class="dropdown-menu">
+                    <div class="dropdown-item" onclick="notepadDownload(); closeAllDropdowns(event)">📥 Скачать</div>
+                    <div class="dropdown-item" onclick="notepadUpload(); closeAllDropdowns(event)">📂 Загрузить</div>
+                </div>
+            </span>
+            <span class="window-menu-item">Правка</span>
+            <span class="window-menu-item">Поиск</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content inset-border" style="padding: 0;">
+            <textarea class="notepad-textarea" id="notepad-textarea" placeholder="Введите текст здесь..."></textarea>
+        </div>
+        <input type="file" id="notepad-hidden-file" class="hidden-file-input" accept=".txt,text/plain">
+    </div>
+
+    <!-- ОКНО: САПЁР -->
+    <div id="mines-win" class="window outset-border" style="width: 214px; height: 340px; top: 80px; left: 240px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('mines-win')">
+            <div class="window-title">
+                <img class="minesweeper-header-icon" src="https://allwebs.ru/images/2026/10/20/42cb092194f87a6538ea812ba2953087.png" alt="Сапёр">
+                Сапёр
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('mines-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('mines-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item" onclick="initMinesweeper()">Игра</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content inset-border" id="minesweeper-layout">
+            <div id="mine-dashboard" class="inset-border">
+                <div class="mine-counter" id="mine-count-display">010</div>
+                <button id="mine-smiley" class="button-border" onclick="initMinesweeper()">🙂</button>
+                <div class="mine-counter" id="mine-timer-display">000</div>
+            </div>
+            <div id="mine-grid"></div>
+        </div>
+    </div>
+
+    <!-- ОКНО: КАЛЬКУЛЯТОР -->
+    <div id="calc-win" class="window outset-border" style="width: 230px; height: 280px; top: 120px; left: 350px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('calc-win')">
+            <div class="window-title">
+                <img class="calc-header-icon" src="https://allwebs.ru/images/2026/10/21/26889bff26d1f7d819894fb00409198a.png" alt="Калькулятор">
+                Калькулятор
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('calc-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('calc-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item">Правка</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content">
+            <div id="calc-display">0</div>
+            <div class="calc-buttons">
+                <button class="calc-btn" onclick="calcClear()">C</button>
+                <button class="calc-btn" onclick="calcBackspace()">←</button>
+                <button class="calc-btn op" onclick="calcSetOp('%')">%</button>
+                <button class="calc-btn op" onclick="calcSetOp('/')">÷</button>
+
+                <button class="calc-btn" onclick="calcDigit('7')">7</button>
+                <button class="calc-btn" onclick="calcDigit('8')">8</button>
+                <button class="calc-btn" onclick="calcDigit('9')">9</button>
+                <button class="calc-btn op" onclick="calcSetOp('*')">×</button>
+
+                <button class="calc-btn" onclick="calcDigit('4')">4</button>
+                <button class="calc-btn" onclick="calcDigit('5')">5</button>
+                <button class="calc-btn" onclick="calcDigit('6')">6</button>
+                <button class="calc-btn op" onclick="calcSetOp('-')">−</button>
+
+                <button class="calc-btn" onclick="calcDigit('1')">1</button>
+                <button class="calc-btn" onclick="calcDigit('2')">2</button>
+                <button class="calc-btn" onclick="calcDigit('3')">3</button>
+                <button class="calc-btn op" onclick="calcSetOp('+')">+</button>
+
+                <button class="calc-btn" onclick="calcDigit('0')">0</button>
+                <button class="calc-btn" onclick="calcDigit('.')">,</button>
+                <button class="calc-btn equals" onclick="calcEquals()">=</button>
+                <button class="calc-btn" onclick="calcClear()">C</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: WINDOWS MEDIA PLAYER (720px) -->
+    <div id="wmp-win" class="window outset-border" style="width: 720px; height: 500px; top: 60px; left: 150px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('wmp-win')">
+            <div class="window-title">
+                <span class="wmp-header-icon" style="display:inline-flex;align-items:center;justify-content:center;">🎬</span>
+                Windows Media Player
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('wmp-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('wmp-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item">Файл</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Воспроизведение</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content">
+            <div class="wmp-video-box">
+                <div class="wmp-placeholder" id="wmp-placeholder">
+                    🎬<br>Выберите видео для воспроизведения
+                </div>
+                <video id="wmp-video" controls></video>
+            </div>
+            <div class="wmp-buttons">
+                <button class="button-border" onclick="wmpLoadFromDevice()">Загрузить видео с устройства</button>
+            </div>
+            <input type="file" id="wmp-hidden-file" accept="video/*">
+        </div>
+    </div>
+
+    <!-- ОКНО: PAINT (с рабочим меню Файл) -->
+    <div id="paint-win" class="window outset-border" style="width: 520px; height: 440px; top: 90px; left: 200px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('paint-win')">
+            <div class="window-title">
+                <img class="paint-header-icon" src="https://allwebs.ru/images/2026/10/21/746a0659445a2f1990a886583937190c.png" alt="Paint">
+                <span id="paint-title-text">Paint</span>
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('paint-win')">_</button>
+                <button class="window-btn button-border" onclick="closePaintWindow()">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item" onclick="toggleDropdown('paint-file-menu', event)">
+                Файл
+                <div id="paint-file-menu" class="dropdown-menu">
+                    <div class="dropdown-item" onclick="paintDownload(); closeAllDropdowns(event)">📥 Скачать рисунок (BMP)</div>
+                    <div class="dropdown-item" onclick="paintUpload(); closeAllDropdowns(event)">📂 Загрузить</div>
+                </div>
+            </span>
+            <span class="window-menu-item">Правка</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content">
+            <div class="paint-toolbar">
+                <button class="button-border active-tool" id="paint-tool-brush" onclick="paintSetTool('brush')">Кисть</button>
+                <button class="button-border" id="paint-tool-eraser" onclick="paintSetTool('eraser')">Ластик</button>
+                <button class="button-border" onclick="paintClear()">Очистить</button>
+            </div>
+            <div class="paint-colors" id="paint-colors"></div>
+            <canvas id="paint-canvas" width="480" height="280"></canvas>
+        </div>
+        <input type="file" id="paint-hidden-file" class="hidden-file-input" accept="image/*">
+    </div>
+
+    <!-- ОКНО: РАДИО -->
+    <div id="radio-win" class="window outset-border" style="width: 520px; height: 440px; top: 80px; left: 230px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('radio-win')">
+            <div class="window-title">
+                <span style="font-size:14px;">📻</span>
+                Радио
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('radio-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('radio-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item">Файл</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content">
+            <div class="radio-tiles" id="radio-tiles"></div>
+            <div class="radio-player-box">
+                <div class="radio-now-playing" id="radio-now-playing">Выберите радиостанцию</div>
+                <audio id="radio-audio" controls preload="none"></audio>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: ПАНЕЛЬ УПРАВЛЕНИЯ -->
+    <div id="controlpanel-win" class="window outset-border" style="width: 400px; height: 220px; top: 100px; left: 200px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('controlpanel-win')">
+            <div class="window-title">
+                <span style="font-size:14px;">⚙️</span>
+                Панель управления
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="minimizeWindow('controlpanel-win')">_</button>
+                <button class="window-btn button-border" onclick="closeWindow('controlpanel-win')">X</button>
+            </div>
+        </div>
+        <div class="window-menu">
+            <span class="window-menu-item">Файл</span>
+            <span class="window-menu-item">Вид</span>
+            <span class="window-menu-item">Справка</span>
+        </div>
+        <div class="window-content">
+            <div class="cp-tiles">
+                <div class="cp-tile" onclick="openWindow('cp-display-win')">
+                    <div class="cp-tile-icon">🖥️</div>
+                    <div class="cp-tile-label">Экран</div>
+                </div>
+                <div class="cp-tile" onclick="openWindow('cp-system-win')">
+                    <div class="cp-tile-icon">🖲️</div>
+                    <div class="cp-tile-label">Система</div>
+                </div>
+                <div class="cp-tile" onclick="openWindow('cp-about-win')">
+                    <div class="cp-tile-icon">ℹ️</div>
+                    <div class="cp-tile-label">О системе</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: ПАНЕЛЬ УПРАВЛЕНИЯ — ЭКРАН -->
+    <div id="cp-display-win" class="window outset-border cp-section-win" style="height: 200px; top: 150px; left: 280px; display: none;">
+        <div class="window-header">
+            <div class="window-title">
+                <span style="font-size:14px;">🖥️</span>
+                Экран
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="closeWindow('cp-display-win')">X</button>
+            </div>
+        </div>
+        <div class="window-content inset-border" style="background-color: #c0c0c0; border: none; box-shadow: none;">
+            <div class="cp-section-body">
+                <div class="cp-row">
+                    <span class="cp-label">Яркость:</span>
+                    <input type="range" id="brightness-slider" class="cp-slider" min="20" max="100" value="100">
+                    <span class="cp-value" id="brightness-value">100%</span>
+                </div>
+                <div class="cp-row">
+                    <button class="cp-big-btn button-border" onclick="applyBrightness()">Применить</button>
+                </div>
+                <div style="font-size: 11px; color: #404040; text-align: center;">
+                    Изменяет яркость рабочего стола и окон
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: ПАНЕЛЬ УПРАВЛЕНИЯ — СИСТЕМА -->
+    <div id="cp-system-win" class="window outset-border cp-section-win" style="height: 220px; top: 180px; left: 310px; display: none;">
+        <div class="window-header">
+            <div class="window-title">
+                <span style="font-size:14px;">🖲️</span>
+                Система
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="closeWindow('cp-system-win')">X</button>
+            </div>
+        </div>
+        <div class="window-content inset-border" style="background-color: #c0c0c0; border: none; box-shadow: none;">
+            <div class="cp-section-body">
+                <div class="cp-warning">
+                    ⚠️ Внимание! Это действие удалит все созданные файлы и настройки.
+                </div>
+                <button class="cp-big-btn button-border" onclick="factoryReset()">Сброс к заводским настройкам</button>
+                <div style="font-size: 11px; color: #404040; text-align: center; margin-top: 6px;">
+                    После сброса страница перезагрузится
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: ПАНЕЛЬ УПРАВЛЕНИЯ — О СИСТЕМЕ -->
+    <div id="cp-about-win" class="window outset-border cp-section-win" style="height: 300px; top: 160px; left: 340px; display: none;">
+        <div class="window-header">
+            <div class="window-title">
+                <span style="font-size:14px;">ℹ️</span>
+                О системе
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="closeWindow('cp-about-win')">X</button>
+            </div>
+        </div>
+        <div class="window-content inset-border" style="background-color: #c0c0c0; border: none; box-shadow: none;">
+            <div class="cp-section-body">
+                <div class="cp-about-text">
+                    Данная программа является лишь симуляцией Windows 95, все права на операционную систему Windows принадлежат корпорации Microsoft.
+                </div>
+                <div class="cp-developers-title">Разработчики:</div>
+                <div class="cp-developers-name">Амин Мамедов</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОКНО: О СИСТЕМЕ (главное меню) -->
+    <div id="about-win" class="window outset-border" style="width: 320px; height: 200px; top: 200px; left: 250px; display: none;">
+        <div class="window-header" ondblclick="toggleMaximize('about-win')">
+            <div class="window-title">
+                <span style="font-size:14px;">ℹ️</span>
+                О системе
+            </div>
+            <div class="window-controls">
+                <button class="window-btn button-border" onclick="closeWindow('about-win')">X</button>
+            </div>
+        </div>
+        <div class="window-content inset-border">
+            <div class="info-text">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                    <img src="https://img.icons8.ru/?size=96&id=wG9MSO7XoMy2&format=png" style="width: 48px; height: 48px;" alt="Win95">
+                    <strong>Microsoft Windows 95</strong>
+                </div>
+                <p>Копия легендарного интерфейса ОС, воссозданная на чистом HTML, CSS и JS.</p>
+                <div class="ok-btn-container">
+                    <button class="ok-btn button-border" onclick="closeWindow('about-win')">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПАНЕЛЬ ЗАДАЧ -->
+    <div id="taskbar" class="outset-border">
+        <div id="start-button" class="button-border" onclick="toggleStartMenu()">
+            <img src="https://img.icons8.ru/?size=96&id=wG9MSO7XoMy2&format=png" alt="Windows Logo">
+            Пуск
+        </div>
+        <div id="tasks-area"></div>
+        <div id="system-tray" class="inset-border">
+            <div id="clock">00:00</div>
+        </div>
+    </div>
+
+    <!-- ФУЛЛСКРИН ПРИ ДЕЛЕНИИ НА 0 -->
+    <div id="div-zero-overlay">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRi44n1UC9SeIdtkgF2nBJESBnb7qW0jUGw9UezAEtIQw&s=10" alt="Division by zero">
+    </div>
+
+    <script>
+        const startUpSound = new Audio('https://www.winhistory.de/more/winstart/down/o95.wav');
+
+        // ===== ЯРКОСТЬ =====
+        function applyBrightnessFromStorage() {
+            let b = 100;
+            try {
+                const saved = localStorage.getItem('win95_brightness');
+                if (saved !== null) {
+                    b = parseInt(saved, 10);
+                    if (isNaN(b)) b = 100;
+                }
+            } catch (e) {}
+            b = Math.max(20, Math.min(100, b));
+            const desktop = document.getElementById('desktop');
+            if (desktop) desktop.style.filter = 'brightness(' + (b / 100) + ')';
+            const slider = document.getElementById('brightness-slider');
+            const val = document.getElementById('brightness-value');
+            if (slider) slider.value = b;
+            if (val) val.textContent = b + '%';
+        }
+
+        function applyBrightness() {
+            const slider = document.getElementById('brightness-slider');
+            const val = document.getElementById('brightness-value');
+            if (!slider) return;
+            const b = parseInt(slider.value, 10);
+            val.textContent = b + '%';
+            const desktop = document.getElementById('desktop');
+            if (desktop) desktop.style.filter = 'brightness(' + (b / 100) + ')';
+            try { localStorage.setItem('win95_brightness', String(b)); } catch (e) {}
+        }
+
+        function initBrightnessSlider() {
+            const slider = document.getElementById('brightness-slider');
+            if (!slider) return;
+            slider.addEventListener('input', function() {
+                document.getElementById('brightness-value').textContent = slider.value + '%';
+            });
+            applyBrightnessFromStorage();
+        }
+
+        // ===== СБРОС =====
+        function factoryReset() {
+            if (!confirm('Сбросить все настройки и удалить все созданные файлы? Это действие необратимо.')) return;
+            try { localStorage.clear(); } catch (e) {}
+            location.reload();
+        }
+
+        function startOS() {
+            document.getElementById('bios-start-box').style.display = 'none';
+            const bootImage = document.getElementById('boot-image');
+            bootImage.style.display = 'block';
+            
+            setTimeout(() => {
+                const bootScreen = document.getElementById('boot-screen');
+                if (bootScreen) {
+                    bootScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        bootScreen.style.display = 'none';
+                        startUpSound.play().catch(error => console.log("Sound block:", error));
+                    }, 500);
+                }
+            }, 2500);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            if (hours < 10) hours = '0' + hours;
+            if (minutes < 10) minutes = '0' + minutes;
+            document.getElementById('clock').innerText = hours + ':' + minutes;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function toggleStartMenu() {
+            const startMenu = document.getElementById('start-menu');
+            const startBtn = document.getElementById('start-button');
+            if (startMenu.style.display === 'flex') {
+                startMenu.style.display = 'none';
+                startBtn.classList.remove('active');
+            } else {
+                startMenu.style.display = 'flex';
+                startBtn.classList.add('active');
+            }
+        }
+
+        const contextMenu = document.getElementById('desktop-context-menu');
+
+        document.getElementById('desktop').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            document.getElementById('start-menu').style.display = 'none';
+            document.getElementById('start-button').classList.remove('active');
+
+            contextMenu.style.display = 'flex';
+            const menuW = 200, menuH = 200;
+            let x = e.clientX, y = e.clientY;
+            if (x + menuW > window.innerWidth) x = window.innerWidth - menuW - 4;
+            if (y + menuH > window.innerHeight) y = window.innerHeight - menuH - 4;
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+        });
+
+        function closeContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        // ===== ВЫПАДАЮЩИЕ МЕНЮ "ФАЙЛ" =====
+        function toggleDropdown(menuId, event) {
+            if (event) event.stopPropagation();
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+            const isShown = menu.classList.contains('show');
+            closeAllDropdowns();
+            if (!isShown) {
+                menu.classList.add('show');
+            }
+        }
+
+        function closeAllDropdowns(event) {
+            if (event) event.stopPropagation();
+            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+        }
+
+        // Клик вне меню — закрыть
+        document.addEventListener('click', function(e) {
+            if (!contextMenu.contains(e.target) && contextMenu.style.display === 'flex') {
+                closeContextMenu();
+            }
+            if (!e.target.closest('.dropdown-menu') && !e.target.closest('.window-menu-item')) {
+                closeAllDropdowns();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeContextMenu();
+                closeAllDropdowns();
+                const startMenu = document.getElementById('start-menu');
+                if (startMenu.style.display === 'flex') {
+                    startMenu.style.display = 'none';
+                    document.getElementById('start-button').classList.remove('active');
+                }
+            }
+        });
+
+        document.getElementById('desktop').addEventListener('click', function() {
+            const startMenu = document.getElementById('start-menu');
+            if (startMenu.style.display === 'flex') {
+                startMenu.style.display = 'none';
+                document.getElementById('start-button').classList.remove('active');
+            }
+        });
+
+        // ===== ФАЙЛЫ =====
+        const FILE_PREFIX = 'win95_file_';
+        const BMP_PREFIX = 'win95_bmp_';
+
+        function getFilesList() {
+            try {
+                const list = JSON.parse(localStorage.getItem('win95_files_list') || '[]');
+                return Array.isArray(list) ? list : [];
+            } catch (e) { return []; }
+        }
+
+        function saveFilesList(list) {
+            localStorage.setItem('win95_files_list', JSON.stringify(list));
+        }
+
+        function getFileContent(name) {
+            return localStorage.getItem(FILE_PREFIX + name) || '';
+        }
+
+        function setFileContent(name, content) {
+            localStorage.setItem(FILE_PREFIX + name, content);
+        }
+
+        function fileEmoji(name) {
+            if (name.endsWith('.txt')) return '📄';
+            if (name.endsWith('.bmp')) return '🖼️';
+            return '📄';
+        }
+
+        function addFileIcon(name) {
+            const desktop = document.getElementById('desktop');
+            if (document.querySelector(`.desktop-icon[data-filename="${CSS.escape(name)}"]`)) return;
+            const icon = document.createElement('div');
+            icon.className = 'desktop-icon';
+            icon.tabIndex = 0;
+            icon.dataset.filename = name;
+
+            let inner;
+            if (name.endsWith('.bmp')) {
+                inner = `<img src="https://allwebs.ru/images/2026/10/21/ebe011603c69dbaa2f275699ca5ac94e.png" alt="BMP" style="width:36px;height:36px;"><span>${name}</span>`;
+            } else {
+                inner = `<div style="width:32px;height:32px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;font-size:26px;">${fileEmoji(name)}</div><span>${name}</span>`;
+            }
+            icon.innerHTML = inner;
+            icon.ondblclick = function() { openFile(name); };
+            desktop.appendChild(icon);
+        }
+
+        function createFile(name) {
+            const list = getFilesList();
+            let finalName = name;
+            let counter = 2;
+            while (list.some(f => f.name === finalName)) {
+                const dot = name.lastIndexOf('.');
+                if (dot === -1) {
+                    finalName = name + ' (' + counter + ')';
+                } else {
+                    finalName = name.slice(0, dot) + ' (' + counter + ')' + name.slice(dot);
+                }
+                counter++;
+            }
+            list.push({ name: finalName });
+            saveFilesList(list);
+            setFileContent(finalName, '');
+            addFileIcon(finalName);
+        }
+
+        function createBmp() {
+            const list = getFilesList();
+            let finalName = 'Рисунок.bmp';
+            let counter = 2;
+            while (list.some(f => f.name === finalName)) {
+                finalName = 'Рисунок (' + counter + ').bmp';
+                counter++;
+            }
+            list.push({ name: finalName });
+            saveFilesList(list);
+            try { localStorage.removeItem(BMP_PREFIX + finalName); } catch (e) {}
+            addFileIcon(finalName);
+        }
+
+        function openFile(name) {
+            if (name.endsWith('.txt')) {
+                openNotepad(name);
+            } else if (name.endsWith('.bmp')) {
+                openPaint(name);
+            } else {
+                openWindow('error-win');
+            }
+        }
+
+        function restoreFiles() {
+            const list = getFilesList();
+            list.forEach(f => addFileIcon(f.name));
+        }
+
+        // ===== БЛОКНОТ =====
+        let notepadCurrentFile = null;
+        let notepadLastSavedValue = '';
+
+        const notepadTextarea = () => document.getElementById('notepad-textarea');
+        const notepadTitle = () => document.getElementById('notepad-title-text');
+
+        function openNotepad(fileName) {
+            notepadCurrentFile = fileName || null;
+            const ta = notepadTextarea();
+            if (fileName) {
+                ta.value = getFileContent(fileName);
+                notepadTitle().innerText = fileName + ' - Блокнот';
+            } else {
+                ta.value = '';
+                notepadTitle().innerText = 'Без имени - Блокнот';
+            }
+            notepadLastSavedValue = ta.value;
+            _realOpenWindow('notepad-win');
+        }
+
+        // Скачать .txt
+        function notepadDownload() {
+            const ta = notepadTextarea();
+            const text = ta.value;
+            const fileName = notepadCurrentFile || 'Без имени.txt';
+            try {
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } catch (e) {
+                alert('Не удалось скачать файл: ' + e.message);
+            }
+        }
+
+        // Загрузить .txt
+        function notepadUpload() {
+            const input = document.getElementById('notepad-hidden-file');
+            input.value = '';
+            input.onchange = function() {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const text = ev.target.result;
+                    notepadTextarea().value = text;
+                    notepadLastSavedValue = text;
+
+                    // Привязываем к файлу на рабочем столе (создаём, если нет)
+                    let name = file.name;
+                    if (!name.endsWith('.txt')) name += '.txt';
+                    const list = getFilesList();
+                    if (!list.some(f => f.name === name)) {
+                        list.push({ name: name });
+                        saveFilesList(list);
+                    }
+                    setFileContent(name, text);
+                    notepadCurrentFile = name;
+                    notepadTitle().innerText = name + ' - Блокнот';
+                    addFileIcon(name);
+                };
+                reader.readAsText(file, 'UTF-8');
+            };
+            input.click();
+        }
+
+        function requestCloseNotepad() {
+            const win = document.getElementById('notepad-win');
+            const ta = notepadTextarea();
+            const hasUnsaved = ta.value !== notepadLastSavedValue;
+            if (!hasUnsaved) {
+                win.style.display = 'none';
+                updateTaskbar();
+                return;
+            }
+            const dlg = document.getElementById('save-dialog');
+            const msg = document.getElementById('save-dialog-message');
+            if (notepadCurrentFile) {
+                msg.innerText = `Файл «${notepadCurrentFile}» был изменён. Сохранить изменения?`;
+            } else {
+                msg.innerText = 'Файл не имеет имени. Сохранить его как «Безымянный.txt»?';
+            }
+            dlg.style.display = 'flex';
+            dlg.dataset.pendingAction = 'close';
+        }
+
+        function saveDialogSave() {
+            const dlg = document.getElementById('save-dialog');
+            dlg.style.display = 'none';
+            let targetName = notepadCurrentFile;
+            if (!targetName) {
+                targetName = 'Безымянный.txt';
+                const list = getFilesList();
+                let counter = 2;
+                const base = 'Безымянный';
+                while (list.some(f => f.name === targetName)) {
+                    targetName = `${base} (${counter}).txt`;
+                    counter++;
+                }
+                list.push({ name: targetName });
+                saveFilesList(list);
+                notepadCurrentFile = targetName;
+                notepadTitle().innerText = targetName + ' - Блокнот';
+                addFileIcon(targetName);
+            }
+            setFileContent(targetName, notepadTextarea().value);
+            notepadLastSavedValue = notepadTextarea().value;
+            if (dlg.dataset.pendingAction === 'close') {
+                document.getElementById('notepad-win').style.display = 'none';
+                updateTaskbar();
+            }
+            dlg.dataset.pendingAction = '';
+        }
+
+        function saveDialogDontSave() {
+            const dlg = document.getElementById('save-dialog');
+            dlg.style.display = 'none';
+            notepadTextarea().value = notepadLastSavedValue;
+            if (dlg.dataset.pendingAction === 'close') {
+                document.getElementById('notepad-win').style.display = 'none';
+                updateTaskbar();
+            }
+            dlg.dataset.pendingAction = '';
+        }
+
+        // ===== ОКНА =====
+        const windowsData = {
+            'computer-win': { title: 'Мой компьютер', icon: 'https://img.icons8.ru/?size=96&id=wG9MSO7XoMy2&format=png' },
+            'drive-c-win': { title: 'Диск C:', icon: 'https://allwebs.ru/images/2026/10/20/50d749df7e3dd8f0f9877cb780098122.png' },
+            'notepad-win': { title: 'Блокнот', icon: 'https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png' },
+            'mines-win': { title: 'Сапёр', icon: 'https://allwebs.ru/images/2026/10/20/42cb092194f87a6538ea812ba2953087.png' },
+            'calc-win': { title: 'Калькулятор', icon: 'https://allwebs.ru/images/2026/10/21/26889bff26d1f7d819894fb00409198a.png' },
+            'wmp-win': { title: 'Windows Media Player', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">🎬</text></svg>' },
+            'paint-win': { title: 'Paint', icon: 'https://allwebs.ru/images/2026/10/21/746a0659445a2f1990a886583937190c.png' },
+            'radio-win': { title: 'Радио', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">📻</text></svg>' },
+            'controlpanel-win': { title: 'Панель управления', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">⚙️</text></svg>' },
+            'cp-display-win': { title: 'Экран', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">🖥️</text></svg>' },
+            'cp-system-win': { title: 'Система', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">🖲️</text></svg>' },
+            'cp-about-win': { title: 'О системе (Панель управления)', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">ℹ️</text></svg>' },
+            'about-win': { title: 'О системе', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">ℹ️</text></svg>' },
+            'error-win': { title: 'Ошибка доступа к папке', icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><text y="14" font-size="14">⛔</text></svg>' }
+        };
+
+        function _realOpenWindow(id) {
+            const win = document.getElementById(id);
+            win.style.display = 'flex';
+            makeActive(id);
+            updateTaskbar();
+            if (id === 'mines-win' && !minesInitialized) {
+                initMinesweeper();
+            }
+        }
+
+        function openWindow(id) {
+            if (id === 'notepad-win') {
+                const win = document.getElementById('notepad-win');
+                if (win.style.display === 'flex' && notepadCurrentFile !== null) {
+                    _realOpenWindow(id);
+                    return;
+                }
+                openNotepad(null);
+                return;
+            }
+            _realOpenWindow(id);
+        }
+
+        function closeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+            updateTaskbar();
+        }
+
+        function minimizeWindow(id) {
+            document.getElementById(id).style.display = 'none';
+            updateTaskbar();
+        }
+
+        function toggleWindowFromTaskbar(id) {
+            const win = document.getElementById(id);
+            if (win.style.display === 'none' || !win.classList.contains('active-window')) {
+                win.style.display = 'flex';
+                makeActive(id);
+            } else {
+                win.style.display = 'none';
+            }
+            updateTaskbar();
+        }
+
+        function makeActive(id) {
+            document.querySelectorAll('.window').forEach(w => w.classList.remove('active-window'));
+            const activeWin = document.getElementById(id);
+            if (activeWin) activeWin.classList.add('active-window');
+            updateTaskbar();
+        }
+
+        function updateTaskbar() {
+            const tasksArea = document.getElementById('tasks-area');
+            tasksArea.innerHTML = '';
+            for (const id in windowsData) {
+                const win = document.getElementById(id);
+                if (win && win.style.display !== 'none' && id !== 'error-win') {
+                    const tab = document.createElement('div');
+                    tab.className = 'task-tab button-border';
+                    if (win.classList.contains('active-window')) tab.classList.add('active');
+                    let iconClass = '';
+                    if (id === 'calc-win') iconClass = 'calc-task-icon';
+                    if (id === 'wmp-win') iconClass = 'wmp-task-icon';
+                    tab.innerHTML = `<img class="${iconClass}" src="${windowsData[id].icon}"> <span>${windowsData[id].title}</span>`;
+                    tab.onclick = function() { toggleWindowFromTaskbar(id); };
+                    tasksArea.appendChild(tab);
+                }
+            }
+        }
+
+        function toggleMaximize(id) {
+            const win = document.getElementById(id);
+            if (win.dataset.maximized === '1') {
+                win.style.top = win.dataset.oldTop;
+                win.style.left = win.dataset.oldLeft;
+                win.style.width = win.dataset.oldWidth;
+                win.style.height = win.dataset.oldHeight;
+                win.dataset.maximized = '0';
+            } else {
+                win.dataset.oldTop = win.style.top;
+                win.dataset.oldLeft = win.style.left;
+                win.dataset.oldWidth = win.style.width;
+                win.dataset.oldHeight = win.style.height;
+                win.style.top = '0px';
+                win.style.left = '0px';
+                win.style.width = '100%';
+                win.style.height = 'calc(100% - 40px)';
+                win.dataset.maximized = '1';
+            }
+        }
+
+        (function() {
+            let dragging = null;
+            let offsetX = 0, offsetY = 0;
+            document.querySelectorAll('.window').forEach(win => {
+                win.addEventListener('mousedown', function() { makeActive(win.id); });
+                const header = win.querySelector('.window-header');
+                header.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('.window-btn')) return;
+                    if (win.dataset.maximized === '1') return;
+                    dragging = win;
+                    offsetX = e.clientX - win.offsetLeft;
+                    offsetY = e.clientY - win.offsetTop;
+                    makeActive(win.id);
+                    e.preventDefault();
+                });
+            });
+            document.addEventListener('mousemove', function(e) {
+                if (!dragging) return;
+                dragging.style.left = (e.clientX - offsetX) + 'px';
+                dragging.style.top = (e.clientY - offsetY) + 'px';
+            });
+            document.addEventListener('mouseup', function() { dragging = null; });
+        })();
+
+        // ===== САПЁР =====
+        const rows = 9;
+        const cols = 9;
+        const totalMines = 10;
+        let grid = [];
+        let minesInitialized = false;
+        let gameActive = false;
+        let firstClick = true;
+        let mineTimer = 0;
+        let timerInterval = null;
+        let flagsCount = 0;
+
+        function initMinesweeper() {
+            gameActive = true;
+            firstClick = true;
+            mineTimer = 0;
+            flagsCount = 0;
+            clearInterval(timerInterval);
+            document.getElementById('mine-timer-display').innerText = '000';
+            document.getElementById('mine-count-display').innerText = String(totalMines).padStart(3, '0');
+            document.getElementById('mine-smiley').innerText = '🙂';
+            const gridContainer = document.getElementById('mine-grid');
+            gridContainer.innerHTML = '';
+            grid = [];
+            for (let r = 0; r < rows; r++) {
+                grid[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    const cellEl = document.createElement('div');
+                    cellEl.className = 'mine-cell';
+                    cellEl.dataset.row = r;
+                    cellEl.dataset.col = c;
+                    cellEl.addEventListener('click', () => handleCellClick(r, c));
+                    cellEl.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        handleCellRightClick(r, c);
+                    });
+                    cellEl.addEventListener('mousedown', (e) => {
+                        if (gameActive && e.button === 0) document.getElementById('mine-smiley').innerText = '😮';
+                    });
+                    cellEl.addEventListener('mouseup', (e) => {
+                        if (gameActive && e.button === 0) document.getElementById('mine-smiley').innerText = '🙂';
+                    });
+                    gridContainer.appendChild(cellEl);
+                    grid[r][c] = { mine: false, revealed: false, flagged: false, count: 0, element: cellEl };
+                }
+            }
+            minesInitialized = true;
+        }
+
+        function startMineTimer() {
+            timerInterval = setInterval(() => {
+                if (mineTimer < 999) {
+                    mineTimer++;
+                    document.getElementById('mine-timer-display').innerText = String(mineTimer).padStart(3, '0');
+                }
+            }, 1000);
+        }
+
+        function generateMines(firstRow, firstCol) {
+            let minesPlaced = 0;
+            while (minesPlaced < totalMines) {
+                let r = Math.floor(Math.random() * rows);
+                let c = Math.floor(Math.random() * cols);
+                if (!grid[r][c].mine && (Math.abs(r - firstRow) > 1 || Math.abs(c - firstCol) > 1)) {
+                    grid[r][c].mine = true;
+                    minesPlaced++;
+                }
+            }
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c].mine) continue;
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            let nr = r + dr, nc = c + dc;
+                            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc].mine) count++;
+                        }
+                    }
+                    grid[r][c].count = count;
+                }
+            }
+        }
+
+        function handleCellClick(r, c) {
+            if (!gameActive || grid[r][c].revealed || grid[r][c].flagged) return;
+            if (firstClick) {
+                firstClick = false;
+                generateMines(r, c);
+                startMineTimer();
+            }
+            if (grid[r][c].mine) {
+                gameOver(false);
+                return;
+            }
+            revealCellBFS(r, c);
+            checkWinCondition();
+        }
+
+        function handleCellRightClick(r, c) {
+            if (!gameActive || grid[r][c].revealed) return;
+            const cell = grid[r][c];
+            if (!cell.flagged) {
+                if (flagsCount >= totalMines) return;
+                cell.flagged = true;
+                cell.element.innerText = '🚩';
+                cell.element.style.color = '#ff0000';
+                flagsCount++;
+            } else {
+                cell.flagged = false;
+                cell.element.innerText = '';
+                flagsCount--;
+            }
+            const displayMines = Math.max(0, totalMines - flagsCount);
+            document.getElementById('mine-count-display').innerText = String(displayMines).padStart(3, '0');
+        }
+
+        function revealCellBFS(startR, startC) {
+            const queue = [[startR, startC]];
+            const visited = new Set();
+            while (queue.length > 0) {
+                const [r, c] = queue.shift();
+                const key = r + ',' + c;
+                if (visited.has(key)) continue;
+                visited.add(key);
+                if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
+                const cell = grid[r][c];
+                if (cell.revealed || cell.flagged) continue;
+                cell.revealed = true;
+                cell.element.classList.add('revealed');
+                cell.element.style.border = '1px solid #7b7b7b';
+                cell.element.style.backgroundColor = '#d8d8d8';
+                if (cell.count > 0) {
+                    cell.element.innerText = cell.count;
+                    cell.element.className = `mine-cell revealed mine-num-${cell.count}`;
+                } else {
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            queue.push([r + dr, c + dc]);
+                        }
+                    }
+                }
+            }
+        }
+
+        function checkWinCondition() {
+            let unrevealedSafeCells = 0;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (!grid[r][c].mine && !grid[r][c].revealed) unrevealedSafeCells++;
+                }
+            }
+            if (unrevealedSafeCells === 0) gameOver(true);
+        }
+
+        function gameOver(isWin) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c].mine) {
+                        if (!isWin) {
+                            grid[r][c].element.innerText = '💣';
+                            grid[r][c].element.style.backgroundColor = '#ff0000';
+                        } else {
+                            grid[r][c].element.innerText = '🚩';
+                        }
+                    }
+                }
+            }
+            if (isWin) {
+                document.getElementById('mine-smiley').innerText = '😎';
+                document.getElementById('mine-count-display').innerText = '000';
+            } else {
+                document.getElementById('mine-smiley').innerText = '😵';
+            }
+        }
+
+        // ===== КАЛЬКУЛЯТОР =====
+        const calcState = { display: '0', current: null, operator: null, waitingForOperand: false };
+
+        function updateCalcDisplay() {
+            const el = document.getElementById('calc-display');
+            let text = calcState.display;
+            if (text.length > 14) {
+                const num = parseFloat(text);
+                text = num.toExponential(6);
+            }
+            el.innerText = text;
+        }
+
+        function calcDigit(d) {
+            if (calcState.waitingForOperand) {
+                calcState.display = (d === '.') ? '0.' : d;
+                calcState.waitingForOperand = false;
+            } else {
+                if (d === '.' && calcState.display.includes('.')) return;
+                if (calcState.display === '0' && d !== '.') {
+                    calcState.display = d;
+                } else {
+                    calcState.display += d;
+                }
+            }
+            updateCalcDisplay();
+        }
+
+        function calcClear() {
+            calcState.display = '0';
+            calcState.current = null;
+            calcState.operator = null;
+            calcState.waitingForOperand = false;
+            updateCalcDisplay();
+        }
+
+        function calcBackspace() {
+            if (calcState.waitingForOperand) return;
+            if (calcState.display.length > 1) {
+                calcState.display = calcState.display.slice(0, -1);
+            } else {
+                calcState.display = '0';
+            }
+            updateCalcDisplay();
+        }
+
+        function calcSetOp(op) {
+            const inputValue = parseFloat(calcState.display);
+            if (calcState.operator && !calcState.waitingForOperand) {
+                const result = performCalc(calcState.current, inputValue, calcState.operator);
+                if (result === null) return;
+                calcState.display = String(result);
+                calcState.current = result;
+            } else {
+                calcState.current = inputValue;
+            }
+            calcState.waitingForOperand = true;
+            calcState.operator = op;
+            updateCalcDisplay();
+        }
+
+        function calcEquals() {
+            if (calcState.operator === null) return;
+            const inputValue = parseFloat(calcState.display);
+            const result = performCalc(calcState.current, inputValue, calcState.operator);
+            if (result === null) return;
+            calcState.display = String(result);
+            calcState.current = null;
+            calcState.operator = null;
+            calcState.waitingForOperand = true;
+            updateCalcDisplay();
+        }
+
+        function performCalc(a, b, op) {
+            if (op === '+') return a + b;
+            if (op === '-') return a - b;
+            if (op === '*') return a * b;
+            if (op === '/') {
+                if (b === 0) { triggerDivByZero(); return null; }
+                return a / b;
+            }
+            if (op === '%') {
+                if (b === 0) { triggerDivByZero(); return null; }
+                return a % b;
+            }
+            return b;
+        }
+
+        function triggerDivByZero() {
+            const overlay = document.getElementById('div-zero-overlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => { location.reload(); }, 2000);
+        }
+
+        // ===== WINDOWS MEDIA PLAYER =====
+        const wmpVideo = () => document.getElementById('wmp-video');
+        const wmpPlaceholder = () => document.getElementById('wmp-placeholder');
+
+        function wmpShowVideo(src) {
+            const video = wmpVideo();
+            const placeholder = wmpPlaceholder();
+            placeholder.style.display = 'none';
+            video.style.display = 'block';
+            video.src = src;
+            video.load();
+            video.play().catch(err => console.log('Autoplay blocked:', err));
+        }
+
+        function wmpLoadFromDevice() {
+            const input = document.getElementById('wmp-hidden-file');
+            input.value = '';
+            input.onchange = function() {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                wmpShowVideo(url);
+            };
+            input.click();
+        }
+
+        // ===== PAINT =====
+        const paintCanvas = () => document.getElementById('paint-canvas');
+        let paintCtx = null;
+        let paintDrawing = false;
+        let paintCurrentTool = 'brush';
+        let paintCurrentColor = '#000000';
+        let paintCurrentFile = null;
+
+        const PAINT_COLORS = ['#000000', '#808080', '#ffffff', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#800000', '#008000', '#000080'];
+
+        function paintInit() {
+            const canvas = paintCanvas();
+            if (!canvas) return;
+            paintCtx = canvas.getContext('2d');
+            paintCtx.fillStyle = '#ffffff';
+            paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+            paintCtx.lineWidth = 3;
+            paintCtx.lineCap = 'round';
+            paintCtx.lineJoin = 'round';
+
+            const colorsBox = document.getElementById('paint-colors');
+            if (colorsBox && colorsBox.children.length === 0) {
+                PAINT_COLORS.forEach((c, i) => {
+                    const sw = document.createElement('div');
+                    sw.className = 'paint-color' + (i === 0 ? ' active-color' : '');
+                    sw.style.backgroundColor = c;
+                    sw.onclick = function() {
+                        paintCurrentColor = c;
+                        document.querySelectorAll('.paint-color').forEach(el => el.classList.remove('active-color'));
+                        sw.classList.add('active-color');
+                    };
+                    colorsBox.appendChild(sw);
+                });
+            }
+
+            canvas.addEventListener('mousedown', paintStart);
+            canvas.addEventListener('mousemove', paintMove);
+            canvas.addEventListener('mouseup', paintStop);
+            canvas.addEventListener('mouseleave', paintStop);
+        }
+
+        function paintStart(e) {
+            paintDrawing = true;
+            const rect = paintCanvas().getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            paintCtx.beginPath();
+            paintCtx.moveTo(x, y);
+        }
+
+        function paintMove(e) {
+            if (!paintDrawing) return;
+            const rect = paintCanvas().getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            if (paintCurrentTool === 'eraser') {
+                paintCtx.strokeStyle = '#ffffff';
+            } else {
+                paintCtx.strokeStyle = paintCurrentColor;
+            }
+            paintCtx.lineTo(x, y);
+            paintCtx.stroke();
+        }
+
+        function paintStop() {
+            paintDrawing = false;
+        }
+
+        function paintSetTool(tool) {
+            paintCurrentTool = tool;
+            document.getElementById('paint-tool-brush').classList.toggle('active-tool', tool === 'brush');
+            document.getElementById('paint-tool-eraser').classList.toggle('active-tool', tool === 'eraser');
+        }
+
+        function paintClear() {
+            const canvas = paintCanvas();
+            paintCtx.fillStyle = '#ffffff';
+            paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // === Кодировщик BMP (24-bit, без сжатия) ===
+        function canvasToBmpBlob(canvas) {
+            const w = canvas.width;
+            const h = canvas.height;
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, w, h).data;
+
+            // Строка BMP выравнивается по 4 байта
+            const rowSize = Math.floor((24 * w + 31) / 32) * 4;
+            const pixelArraySize = rowSize * h;
+            const fileSize = 54 + pixelArraySize;
+
+            const buffer = new ArrayBuffer(fileSize);
+            const view = new DataView(buffer);
+
+            // BITMAPFILEHEADER
+            view.setUint8(0, 0x42); // 'B'
+            view.setUint8(1, 0x4D); // 'M'
+            view.setUint32(2, fileSize, true);
+            view.setUint16(6, 0, true); // reserved1
+            view.setUint16(8, 0, true); // reserved2
+            view.setUint32(10, 54, true); // offset to pixel data
+
+            // BITMAPINFOHEADER
+            view.setUint32(14, 40, true); // header size
+            view.setInt32(18, w, true);   // width
+            view.setInt32(22, h, true);   // height (положительная — снизу вверх)
+            view.setUint16(26, 1, true);  // planes
+            view.setUint16(28, 24, true); // bits per pixel
+            view.setUint32(30, 0, true);  // compression (BI_RGB)
+            view.setUint32(34, pixelArraySize, true);
+            view.setInt32(38, 2835, true); // x pixels per meter (~72 DPI)
+            view.setInt32(42, 2835, true); // y pixels per meter
+            view.setUint32(46, 0, true);   // colors used
+            view.setUint32(50, 0, true);   // important colors
+
+            // Пиксели (BMP снизу вверх, BGR)
+            let offset = 54;
+            for (let y = h - 1; y >= 0; y--) {
+                for (let x = 0; x < w; x++) {
+                    const i = (y * w + x) * 4;
+                    view.setUint8(offset++, imgData[i + 2]); // B
+                    view.setUint8(offset++, imgData[i + 1]); // G
+                    view.setUint8(offset++, imgData[i + 0]); // R
+                }
+                // Выравнивание до rowSize
+                const padding = rowSize - w * 3;
+                for (let p = 0; p < padding; p++) {
+                    view.setUint8(offset++, 0);
+                }
+            }
+
+            return new Blob([buffer], { type: 'image/bmp' });
+        }
+
+        // Скачать BMP реально на компьютер
+        function paintDownload() {
+            const canvas = paintCanvas();
+            try {
+                const blob = canvasToBmpBlob(canvas);
+                const fileName = paintCurrentFile || 'Рисунок.bmp';
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } catch (e) {
+                alert('Не удалось скачать рисунок: ' + e.message);
+            }
+        }
+
+        // Загрузить изображение на холст
+        function paintUpload() {
+            const input = document.getElementById('paint-hidden-file');
+            input.value = '';
+            input.onchange = function() {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = paintCanvas();
+                        paintCtx.fillStyle = '#ffffff';
+                        paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+                        // Вписываем картинку с сохранением пропорций
+                        const scale = Math.min(canvas.width / img.width, canvas.height / img.height, 1);
+                        const dw = img.width * scale;
+                        const dh = img.height * scale;
+                        const dx = (canvas.width - dw) / 2;
+                        const dy = (canvas.height - dh) / 2;
+                        paintCtx.drawImage(img, dx, dy, dw, dh);
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        // Сохранение в localStorage (для BMP-файлов на рабочем столе)
+        function paintSaveToStorage() {
+            if (!paintCurrentFile) return false;
+            try {
+                const dataUrl = paintCanvas().toDataURL('image/png');
+                localStorage.setItem(BMP_PREFIX + paintCurrentFile, dataUrl);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function openPaint(fileName) {
+            paintCurrentFile = fileName || null;
+            const title = document.getElementById('paint-title-text');
+            if (title) {
+                title.textContent = fileName ? (fileName + ' - Paint') : 'Paint';
+            }
+            _realOpenWindow('paint-win');
+
+            const canvas = paintCanvas();
+            if (!canvas) return;
+            setTimeout(() => {
+                if (!paintCtx) paintInit();
+                if (fileName) {
+                    const saved = localStorage.getItem(BMP_PREFIX + fileName);
+                    if (saved) {
+                        const img = new Image();
+                        img.onload = function() {
+                            paintCtx.fillStyle = '#ffffff';
+                            paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+                            paintCtx.drawImage(img, 0, 0);
+                        };
+                        img.src = saved;
+                    } else {
+                        paintCtx.fillStyle = '#ffffff';
+                        paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                } else {
+                    paintCtx.fillStyle = '#ffffff';
+                    paintCtx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+            }, 50);
+        }
+
+        function closePaintWindow() {
+            if (paintCurrentFile) {
+                if (confirm('Сохранить изменения в файл «' + paintCurrentFile + '»?')) {
+                    paintSaveToStorage();
+                }
+            }
+            closeWindow('paint-win');
+        }
+
+        // ===== РАДИО =====
+        const RADIO_STATIONS = [
+            {
+                name: 'Русское радио',
+                url: 'https://rusradio.hostingradio.ru/rusradio128.mp3',
+                logo: 'https://www.ph4.ru/DL/LOGO/r/russianradio.gif'
+            },
+            {
+                name: 'Европа Плюс',
+                url: 'http://emgregion.hostingradio.ru:8064/moscow.europaplus.mp3',
+                logo: 'https://allwebs.ru/images/2026/10/22/c19b6e05e46bfc0f6f5dc7601e329063.md.png'
+            }
+        ];
+
+        function radioInit() {
+            const tilesBox = document.getElementById('radio-tiles');
+            if (!tilesBox) return;
+            tilesBox.innerHTML = '';
+
+            RADIO_STATIONS.forEach((station, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'radio-tile';
+                tile.dataset.index = index;
+                tile.onclick = function() { radioPlay(index); };
+                tile.innerHTML = `
+                    <div class="radio-tile-logo-box">
+                        <img class="radio-tile-logo" src="${station.logo}" alt="${station.name}"
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'radio-tile-emoji\\'>📻</span>';">
+                    </div>
+                    <div class="radio-tile-name">${station.name}</div>
+                `;
+                tilesBox.appendChild(tile);
+            });
+        }
+
+        function radioPlay(index) {
+            const station = RADIO_STATIONS[index];
+            if (!station) return;
+
+            document.querySelectorAll('.radio-tile').forEach((tile, i) => {
+                tile.classList.toggle('active-station', i === index);
+            });
+
+            const audio = document.getElementById('radio-audio');
+            audio.src = station.url;
+            audio.load();
+            audio.play().catch(err => {
+                console.log('Autoplay blocked:', err);
+                document.getElementById('radio-now-playing').innerText = 'Нажмите Play на плеере, чтобы начать';
+            });
+
+            document.getElementById('radio-now-playing').innerText = 'Сейчас играет: ' + station.name;
+        }
+
+        // ===== ВОССТАНОВЛЕНИЕ =====
+        window.addEventListener('DOMContentLoaded', function() {
+            restoreFiles();
+            paintInit();
+            radioInit();
+            initBrightnessSlider();
+        });
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            restoreFiles();
+            paintInit();
+            radioInit();
+            initBrightnessSlider();
+        }
+    </script>
+</body>
+</html>
