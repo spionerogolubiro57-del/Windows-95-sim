@@ -1224,7 +1224,7 @@
             display: none;
         }
 
-        /* ===== F12 ПАСХАЛКА (видео) ===== */
+        /* ===== ПАСХАЛКИ ===== */
         #f12-overlay {
             position: fixed;
             inset: 0;
@@ -1253,7 +1253,6 @@
             user-select: none;
         }
 
-        /* Скрываем нативные элементы управления видео */
         #f12-overlay video::-webkit-media-controls,
         #f12-overlay video::-webkit-media-controls-panel,
         #f12-overlay video::-webkit-media-controls-play-button,
@@ -1305,7 +1304,6 @@
             #f12-overlay-bottom { font-size: 24px; }
         }
 
-        /* Кнопка «Включить звук» (fallback, если автоплей со звуком заблокирован) */
         #f12-unmute-btn {
             position: absolute;
             right: 20px;
@@ -1897,7 +1895,7 @@
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRi44n1UC9SeIdtkgF2nBJESBnb7qW0jUGw9UezAEtIQw&s=10" alt="Division by zero">
     </div>
 
-    <!-- ===== F12 ПАСХАЛКА (видео со звуком) ===== -->
+    <!-- ===== ПАСХАЛКА (общая для F12 и Ctrl+U) ===== -->
     <div id="f12-overlay">
         <video id="f12-video" autoplay loop playsinline preload="auto">
             <source src="https://allwebs.ru/images/2026/10/24/e2444027a6f5ff858e0caeeb6eddca5f.mp4" type="video/mp4">
@@ -2989,7 +2987,7 @@
             if (!station) return;
 
             if (window.radioSilenced) {
-                document.getElementById('radio-now-playing').innerText = 'Радио отключено (активна пасхалка F12)';
+                document.getElementById('radio-now-playing').innerText = 'Радио отключено (активна пасхалка)';
                 return;
             }
 
@@ -3023,13 +3021,15 @@
         }
     </script>
 
-    <!-- ===== F12 ПАСХАЛКА — ЛОГИКА (видео со звуком) ===== -->
+    <!-- ===== ПАСХАЛКИ (F12 / Ctrl+U) + БЛОКИРОВКА КОНСОЛЕЙ ===== -->
     <script>
         (function() {
             const F12_KEY = 'win95_f12_activated_at';
-            const F12_DURATION_MS = 5 * 60 * 1000; // 5 минут
-            let f12OverlayActive = false;
-            let f12HideTimer = null;
+            const CTRLU_KEY = 'win95_ctrlu_activated_at';
+            const DURATION_MS = 5 * 60 * 1000;
+
+            let overlayActive = false;
+            let hideTimer = null;
 
             function silenceAllRadio() {
                 const radioAudio = document.getElementById('radio-audio');
@@ -3043,38 +3043,31 @@
                 window.radioSilenced = true;
             }
 
-            // Попытка запустить видео со звуком, с fallback на muted + кнопка «Включить звук»
-            function startF12VideoWithSound() {
+            function startVideoWithSound() {
                 const video = document.getElementById('f12-video');
                 const unmuteBtn = document.getElementById('f12-unmute-btn');
                 if (!video) return;
 
-                // Сбрасываем состояние
                 video.muted = false;
                 video.volume = 1.0;
                 if (unmuteBtn) unmuteBtn.classList.remove('show');
 
-                try {
-                    video.currentTime = 0;
-                } catch (e) {}
+                try { video.currentTime = 0; } catch (e) {}
 
                 const p = video.play();
                 if (p && p.catch) {
                     p.catch(err => {
-                        console.warn('F12 video play (with sound) blocked:', err);
-                        // Пробуем ещё раз в mute — так браузер точно разрешит
+                        console.warn('Play (with sound) blocked:', err);
                         video.muted = true;
                         const p2 = video.play();
                         if (p2 && p2.catch) {
-                            p2.catch(err2 => console.warn('F12 video play (muted) also blocked:', err2));
+                            p2.catch(err2 => console.warn('Play (muted) also blocked:', err2));
                         }
-                        // Показываем кнопку «Включить звук»
                         if (unmuteBtn) unmuteBtn.classList.add('show');
                     });
                 }
             }
 
-            // Вызывается по клику на кнопку «Включить звук»
             window.enableF12Sound = function() {
                 const video = document.getElementById('f12-video');
                 const unmuteBtn = document.getElementById('f12-unmute-btn');
@@ -3082,86 +3075,118 @@
                 video.muted = false;
                 video.volume = 1.0;
                 const p = video.play();
-                if (p && p.catch) {
-                    p.catch(err => console.warn('enableF12Sound play error:', err));
-                }
+                if (p && p.catch) p.catch(err => console.warn('enableF12Sound play error:', err));
                 if (unmuteBtn) unmuteBtn.classList.remove('show');
             };
 
-            function showF12Overlay() {
-                if (f12OverlayActive) return;
-                f12OverlayActive = true;
+            function showOverlay(topText) {
+                if (overlayActive) return;
+                overlayActive = true;
 
                 const overlay = document.getElementById('f12-overlay');
                 if (!overlay) return;
                 overlay.classList.add('show');
 
+                const top = document.getElementById('f12-overlay-top');
+                if (top) top.textContent = topText;
+
                 silenceAllRadio();
-                startF12VideoWithSound();
+                startVideoWithSound();
             }
 
-            function hideF12Overlay() {
-                if (!f12OverlayActive) return;
-                f12OverlayActive = false;
+            function hideOverlay() {
+                if (!overlayActive) return;
+                overlayActive = false;
 
                 const overlay = document.getElementById('f12-overlay');
                 if (overlay) overlay.classList.remove('show');
 
                 const video = document.getElementById('f12-video');
-                if (video) {
-                    try { video.pause(); } catch (e) {}
-                }
+                if (video) { try { video.pause(); } catch (e) {} }
                 const unmuteBtn = document.getElementById('f12-unmute-btn');
                 if (unmuteBtn) unmuteBtn.classList.remove('show');
 
                 window.radioSilenced = false;
                 try { localStorage.removeItem(F12_KEY); } catch (e) {}
+                try { localStorage.removeItem(CTRLU_KEY); } catch (e) {}
             }
 
-            function activateF12() {
-                if (f12OverlayActive) return;
+            function activate(key, topText) {
+                if (overlayActive) return;
 
                 let started = Date.now();
                 try {
-                    const saved = localStorage.getItem(F12_KEY);
+                    const saved = localStorage.getItem(key);
                     if (saved !== null) {
                         const t = parseInt(saved, 10);
-                        if (!isNaN(t) && t > 0 && (Date.now() - t) < F12_DURATION_MS) {
+                        if (!isNaN(t) && t > 0 && (Date.now() - t) < DURATION_MS) {
                             started = t;
                         } else {
-                            localStorage.setItem(F12_KEY, String(started));
+                            localStorage.setItem(key, String(started));
                         }
                     } else {
-                        localStorage.setItem(F12_KEY, String(started));
+                        localStorage.setItem(key, String(started));
                     }
                 } catch (e) {}
 
                 const elapsed = Date.now() - started;
-                const remaining = Math.max(0, F12_DURATION_MS - elapsed);
+                const remaining = Math.max(0, DURATION_MS - elapsed);
 
                 if (remaining <= 0) {
-                    try { localStorage.removeItem(F12_KEY); } catch (e) {}
+                    try { localStorage.removeItem(key); } catch (e) {}
                     return;
                 }
 
-                showF12Overlay();
+                showOverlay(topText);
 
-                if (f12HideTimer) clearTimeout(f12HideTimer);
-                f12HideTimer = setTimeout(() => {
-                    hideF12Overlay();
+                if (hideTimer) clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => {
+                    hideOverlay();
                 }, remaining);
             }
 
+            // Перехват клавиш: F12, Ctrl+U, Ctrl+Shift+I/J/C/K/E/M, Ctrl+S, Ctrl+Shift+U
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'F12' || e.keyCode === 123) {
+                const k = (e.key || '').toLowerCase();
+                const code = e.keyCode;
+
+                // F12 — пасхалка
+                if (code === 123 || k === 'f12') {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (f12OverlayActive) return false;
-                    activateF12();
+                    if (!overlayActive) activate(F12_KEY, 'А ЧТО МЫ В F12 ЗАБЫЛИ');
                     return false;
                 }
-                if (f12OverlayActive) {
-                    if (e.key === 'Escape' || e.keyCode === 27) {
+
+                // Ctrl+U — пасхалка (только без Shift)
+                if (e.ctrlKey && !e.shiftKey && !e.altKey && (k === 'u' || code === 85)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!overlayActive) activate(CTRLU_KEY, 'А ЧТО МЫ В КОДЕ ЗАБЫЛИ');
+                    return false;
+                }
+
+                // Блокировка консольных комбинаций (без пасхалки)
+                if (e.ctrlKey && e.shiftKey) {
+                    if (k === 'i' || code === 73) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+I
+                    if (k === 'j' || code === 74) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+J
+                    if (k === 'c' || code === 67) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+C
+                    if (k === 'k' || code === 75) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+K
+                    if (k === 'e' || code === 69) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+E
+                    if (k === 'm' || code === 77) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+M
+                    if (k === 'u' || code === 85) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+U
+                }
+
+                // Ctrl+S — сохранить страницу
+                if (e.ctrlKey && !e.shiftKey && (k === 's' || code === 83)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+
+                // Если оверлей активен — блокируем Escape
+                if (overlayActive) {
+                    if (k === 'escape' || code === 27) {
                         e.preventDefault();
                         e.stopPropagation();
                         return false;
@@ -3169,11 +3194,11 @@
                 }
             }, true);
 
+            // Блокировка кликов по оверлею (кроме кнопки «Включить звук»)
             document.addEventListener('click', function(e) {
-                if (!f12OverlayActive) return;
+                if (!overlayActive) return;
                 const overlay = document.getElementById('f12-overlay');
                 if (!overlay) return;
-                // Разрешаем клик по кнопке «Включить звук»
                 if (e.target && e.target.id === 'f12-unmute-btn') return;
                 if (overlay.contains(e.target)) {
                     e.preventDefault();
@@ -3182,32 +3207,35 @@
                 }
             }, true);
 
-            window.addEventListener('DOMContentLoaded', function() {
+            // Восстановление после перезагрузки, если 5 минут ещё не прошли
+            function restoreIfActive() {
                 try {
-                    const saved = localStorage.getItem(F12_KEY);
-                    if (saved !== null) {
-                        const t = parseInt(saved, 10);
-                        if (!isNaN(t) && t > 0 && (Date.now() - t) < F12_DURATION_MS) {
-                            activateF12();
+                    const savedF12 = localStorage.getItem(F12_KEY);
+                    if (savedF12 !== null) {
+                        const t = parseInt(savedF12, 10);
+                        if (!isNaN(t) && t > 0 && (Date.now() - t) < DURATION_MS) {
+                            activate(F12_KEY, 'А ЧТО МЫ В F12 ЗАБЫЛИ');
+                            return;
                         } else {
                             localStorage.removeItem(F12_KEY);
                         }
                     }
+                    const savedC = localStorage.getItem(CTRLU_KEY);
+                    if (savedC !== null) {
+                        const t = parseInt(savedC, 10);
+                        if (!isNaN(t) && t > 0 && (Date.now() - t) < DURATION_MS) {
+                            activate(CTRLU_KEY, 'А ЧТО МЫ В КОДЕ ЗАБЫЛИ');
+                            return;
+                        } else {
+                            localStorage.removeItem(CTRLU_KEY);
+                        }
+                    }
                 } catch (e) {}
-            });
+            }
 
+            window.addEventListener('DOMContentLoaded', restoreIfActive);
             if (document.readyState === 'interactive' || document.readyState === 'complete') {
-                try {
-                    const saved = localStorage.getItem(F12_KEY);
-                    if (saved !== null) {
-                        const t = parseInt(saved, 10);
-                        if (!isNaN(t) && t > 0 && (Date.now() - t) < F12_DURATION_MS) {
-                            activateF12();
-                        } else {
-                            localStorage.removeItem(F12_KEY);
-                        }
-                    }
-                } catch (e) {}
+                restoreIfActive();
             }
         })();
     </script>
