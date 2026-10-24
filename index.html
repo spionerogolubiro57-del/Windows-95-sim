@@ -188,6 +188,17 @@
             width: 90px;
         }
 
+        /* Иконка Блокнота (новая) */
+        .desktop-icon img.notepad-desktop-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 4px;
+        }
+        .desktop-icon.notepad-container {
+            height: 100px;
+            width: 90px;
+        }
+
         .desktop-icon span {
             padding: 2px 4px;
             display: block;
@@ -304,6 +315,11 @@
             height: 22px;
         }
 
+        .task-tab img.notepad-task-icon {
+            width: 22px;
+            height: 22px;
+        }
+
         #system-tray {
             height: 28px;
             padding: 2px 8px;
@@ -397,6 +413,11 @@
             height: 26px;
         }
 
+        .start-menu-item img.notepad-menu-icon {
+            width: 26px;
+            height: 26px;
+        }
+
         .start-menu-separator {
             height: 2px;
             border-top: 1px solid #808080;
@@ -475,6 +496,11 @@
         }
 
         .window-title img.cp-header-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .window-title img.notepad-header-icon {
             width: 20px;
             height: 20px;
         }
@@ -1351,8 +1377,9 @@
             <img src="https://allwebs.ru/images/2026/10/23/46380545d65d100866245118edb3227a.png" alt="My Computer">
             <span>Мой компьютер</span>
         </div>
-        <div class="desktop-icon" tabindex="0" ondblclick="openWindow('notepad-win')">
-            <img src="https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png" alt="Notepad">
+        <!-- Новая иконка Блокнота -->
+        <div class="desktop-icon notepad-container" tabindex="0" ondblclick="openWindow('notepad-win')">
+            <img class="notepad-desktop-icon" src="https://allwebs.ru/images/2026/10/24/1fc5648b7345734e54fd8d5211dd2537.th.png" alt="Notepad">
             <span>Блокнот</span>
         </div>
         <div class="desktop-icon minesweeper-container" tabindex="0" ondblclick="openWindow('mines-win')">
@@ -1391,8 +1418,9 @@
                 <img src="https://allwebs.ru/images/2026/10/23/46380545d65d100866245118edb3227a.png" alt="Computer">
                 <span>Мой компьютер</span>
             </div>
+            <!-- Новая иконка Блокнота в меню Пуск -->
             <div class="start-menu-item" onclick="openWindow('notepad-win'); toggleStartMenu()">
-                <img src="https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png" alt="Notepad">
+                <img class="notepad-menu-icon" src="https://allwebs.ru/images/2026/10/24/1fc5648b7345734e54fd8d5211dd2537.th.png" alt="Notepad">
                 <span>Блокнот</span>
             </div>
             <div class="start-menu-item" onclick="openWindow('mines-win'); toggleStartMenu()">
@@ -1546,11 +1574,11 @@
         </div>
     </div>
 
-    <!-- ОКНО: БЛОКНОТ -->
+    <!-- ОКНО: БЛОКНОТ (новая иконка в заголовке) -->
     <div id="notepad-win" class="window outset-border" style="width: 450px; height: 300px; top: 150px; left: 200px; display: none;">
         <div class="window-header" ondblclick="toggleMaximize('notepad-win')">
             <div class="window-title">
-                <img src="https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png" alt="Icon">
+                <img class="notepad-header-icon" src="https://allwebs.ru/images/2026/10/24/1fc5648b7345734e54fd8d5211dd2537.th.png" alt="Icon">
                 <span id="notepad-title-text">Без имени - Блокнот</span>
             </div>
             <div class="window-controls">
@@ -2294,7 +2322,7 @@
         const windowsData = {
             'computer-win': { title: 'Мой компьютер', icon: 'https://allwebs.ru/images/2026/10/23/46380545d65d100866245118edb3227a.png' },
             'drive-c-win': { title: 'Диск C:', icon: 'https://allwebs.ru/images/2026/10/20/50d749df7e3dd8f0f9877cb780098122.png' },
-            'notepad-win': { title: 'Блокнот', icon: 'https://www.pngkey.com/png/full/142-1426797_download-count-windows-95-icon-png.png' },
+            'notepad-win': { title: 'Блокнот', icon: 'https://allwebs.ru/images/2026/10/24/1fc5648b7345734e54fd8d5211dd2537.th.png' },
             'mines-win': { title: 'Сапёр', icon: 'https://allwebs.ru/images/2026/10/20/42cb092194f87a6538ea812ba2953087.png' },
             'calc-win': { title: 'Калькулятор', icon: 'https://allwebs.ru/images/2026/10/21/26889bff26d1f7d819894fb00409198a.png' },
             'wmp-win': { title: 'Windows Media Player', icon: 'https://allwebs.ru/images/2026/10/23/de74d1f29e0054d8f25a55fc63a5a2df.th.png' },
@@ -2373,6 +2401,7 @@
                     if (id === 'wmp-win') iconClass = 'wmp-task-icon';
                     if (id === 'radio-win') iconClass = 'radio-task-icon';
                     if (id === 'controlpanel-win') iconClass = 'cp-task-icon';
+                    if (id === 'notepad-win') iconClass = 'notepad-task-icon';
                     tab.innerHTML = `<img class="${iconClass}" src="${windowsData[id].icon}"> <span>${windowsData[id].title}</span>`;
                     tab.onclick = function() { toggleWindowFromTaskbar(id); };
                     tasksArea.appendChild(tab);
@@ -3145,12 +3174,10 @@
                 }, remaining);
             }
 
-            // Перехват клавиш: F12, Ctrl+U, Ctrl+Shift+I/J/C/K/E/M, Ctrl+S, Ctrl+Shift+U
             document.addEventListener('keydown', function(e) {
                 const k = (e.key || '').toLowerCase();
                 const code = e.keyCode;
 
-                // F12 — пасхалка
                 if (code === 123 || k === 'f12') {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3158,7 +3185,6 @@
                     return false;
                 }
 
-                // Ctrl+U — пасхалка (только без Shift)
                 if (e.ctrlKey && !e.shiftKey && !e.altKey && (k === 'u' || code === 85)) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3166,25 +3192,22 @@
                     return false;
                 }
 
-                // Блокировка консольных комбинаций (без пасхалки)
                 if (e.ctrlKey && e.shiftKey) {
-                    if (k === 'i' || code === 73) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+I
-                    if (k === 'j' || code === 74) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+J
-                    if (k === 'c' || code === 67) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+C
-                    if (k === 'k' || code === 75) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+K
-                    if (k === 'e' || code === 69) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+E
-                    if (k === 'm' || code === 77) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+M
-                    if (k === 'u' || code === 85) { e.preventDefault(); e.stopPropagation(); return false; } // Ctrl+Shift+U
+                    if (k === 'i' || code === 73) { e.preventDefault(); e.stopPropagation(); return false; }
+                    if (k === 'j' || code === 74) { e.preventDefault(); e.stopPropagation(); return false; }
+                    if (k === 'c' || code === 67) { e.preventDefault(); e.stopPropagation(); return false; }
+                    if (k === 'k' || code === 75) { e.preventDefault(); e.stopPropagation(); return false; }
+                    if (k === 'e' || code === 69) { e.preventDefault(); e.stopPropagation(); return false; }
+                    if (k === 'm' || code === 77) { e.preventDefault(); e.stopPropagation(); return false; }
+                    if (k === 'u' || code === 85) { e.preventDefault(); e.stopPropagation(); return false; }
                 }
 
-                // Ctrl+S — сохранить страницу
                 if (e.ctrlKey && !e.shiftKey && (k === 's' || code === 83)) {
                     e.preventDefault();
                     e.stopPropagation();
                     return false;
                 }
 
-                // Если оверлей активен — блокируем Escape
                 if (overlayActive) {
                     if (k === 'escape' || code === 27) {
                         e.preventDefault();
@@ -3194,7 +3217,6 @@
                 }
             }, true);
 
-            // Блокировка кликов по оверлею (кроме кнопки «Включить звук»)
             document.addEventListener('click', function(e) {
                 if (!overlayActive) return;
                 const overlay = document.getElementById('f12-overlay');
@@ -3207,7 +3229,6 @@
                 }
             }, true);
 
-            // Восстановление после перезагрузки, если 5 минут ещё не прошли
             function restoreIfActive() {
                 try {
                     const savedF12 = localStorage.getItem(F12_KEY);
