@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>503 — Технические работы | Симулятор Windows 95</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      background-color: #008080; /* Классический бирюзовый фон рабочего стола Win95 */
+      font-family: "MS Sans Serif", "Tahoma", "Arial", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Окно в стиле Windows 95 */
+    .win95-window {
+      background-color: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #dfdfdf;
+      max-width: 560px;
+      width: 100%;
+      padding: 3px;
+    }
+
+    .title-bar {
+      background: linear-gradient(90deg, #000080, #1084d0);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .window-body {
+      padding: 28px 20px 32px 20px;
+      text-align: center;
+    }
+
+    .error-code {
+      font-size: 84px;
+      font-weight: bold;
+      line-height: 1;
+      margin: 0 0 12px 0;
+      color: #000080;
+      text-shadow: 2px 2px 0 #ffffff;
+      letter-spacing: 4px;
+    }
+
+    .robot-container {
+      margin: 10px auto 18px auto;
+      width: 160px;
+      height: 130px;
+    }
+
+    .message {
+      font-size: 17px;
+      line-height: 1.5;
+      color: #000000;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="win95-window">
+    <div class="title-bar">
+      <span>Windows 95 Simulator — Ошибка 503</span>
+      <span>[X]</span>
+    </div>
+
+    <div class="window-body">
+      <div class="error-code">503</div>
+
+      <!-- Картинка: робот развёл руками (SVG) -->
+      <div class="robot-container">
+        <svg viewBox="0 0 200 160" width="160" height="130" xmlns="http://w3.org">
+          <!-- Антенна -->
+          <line x1="100" y1="10" x2="100" y2="28" stroke="#333" stroke-width="4"/>
+          <circle cx="100" cy="8" r="5" fill="#ff0000"/>
+          <!-- Голова -->
+          <rect x="65" y="28" width="70" height="45" rx="6" fill="#d0d0d0" stroke="#333" stroke-width="3"/>
+          <!-- Глаза -->
+          <circle cx="85" cy="48" r="6" fill="#000080"/>
+          <circle cx="115" cy="48" r="6" fill="#000080"/>
+          <!-- Рот (недоумение) -->
+          <path d="M 85 62 Q 100 57 115 62" stroke="#333" stroke-width="3" fill="none"/>
+          <!-- Шея -->
+          <rect x="90" y="73" width="20" height="10" fill="#808080" stroke="#333" stroke-width="2"/>
+          <!-- Туловище -->
+          <rect x="55" y="83" width="90" height="65" rx="8" fill="#b0b0b0" stroke="#333" stroke-width="3"/>
+          <!-- Экран на груди -->
+          <rect x="72" y="96" width="56" height="32" fill="#008080" stroke="#333" stroke-width="2"/>
+          <text x="100" y="117" font-family="monospace" font-size="14" fill="#ffffff" text-anchor="middle" font-weight="bold">503</text>
+          <!-- Левая рука (разведена в сторону) -->
+          <path d="M 55 95 L 25 85 L 15 65" stroke="#333" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M 8 60 L 15 65 L 22 58" stroke="#333" stroke-width="4" stroke-linecap="round" fill="none"/>
+          <!-- Правая рука (разведена в сторону) -->
+          <path d="M 145 95 L 175 85 L 185 65" stroke="#333" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M 178 58 L 185 65 L 192 60" stroke="#333" stroke-width="4" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+
+      <p class="message">
+        Мы проводим технические работы в симуляторе Windows 95 а именно исправляем баги, добавляем новые функции.<br>
+        Пожалуйста, зайдите немного позже.
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>
