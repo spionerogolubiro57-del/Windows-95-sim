@@ -1,4 +1,5 @@
-![Uploading image.png…]()
+<img width="1280" height="960" alt="1598265288110238923" src="https://github.com/user-attachments/assets/08b53e30-4a0a-4e95-8b11-34dd44089687" />
+
 # Windows 95 Web Simulation
 
 Интерактивная веб-симуляция легендарной операционной системы **Microsoft Windows 95**, воссозданная на чистом **HTML, CSS и JavaScript** без использования сторонних фреймворков.
