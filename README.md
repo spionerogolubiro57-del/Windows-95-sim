@@ -1,3 +1,4 @@
+![Uploading image.png…]()
 # Windows 95 Web Simulation
 
 Интерактивная веб-симуляция легендарной операционной системы **Microsoft Windows 95**, воссозданная на чистом **HTML, CSS и JavaScript** без использования сторонних фреймворков.
