@@ -1,4 +1,4 @@
-<img width="1280" height="960" alt="1598265288110238923" src="https://github.com/user-attachments/assets/08b53e30-4a0a-4e95-8b11-34dd44089687" />
+<img width="1280" height="960" alt="1598265288110238923" src="https://allwebs.ru/images/2026/11/13/a3ce103e043155640a3d830116219af8.jpg" />
 
 # Windows 95 Web Simulation
 
